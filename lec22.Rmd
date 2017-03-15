@@ -1,0 +1,254 @@
+---
+title: "STA286 Lecture 22"
+author: "Neil Montgomery"
+date: "Last edited: `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
+output: 
+  beamer_presentation:
+    keep_tex: TRUE
+    incremental: TRUE
+    df_print: tibble
+    fig_caption: FALSE
+classoption: aspectratio=169
+header-includes:
+- \renewcommand{\le}{\leqslant}
+- \renewcommand{\ge}{\geqslant}
+- \renewcommand\P[1]{P{\left(#1\right)}}
+- \newcommand\F[1]{F_{\tiny{#1}}}
+- \newcommand\f[1]{f_{\tiny{#1}}}
+- \newcommand\p[1]{p_{\tiny{#1}}}
+- \newcommand\M[1]{M_{\tiny{#1}}}
+- \newcommand\V[1]{\text{Var}\!\left(#1\right)}
+- \newcommand\E[1]{E\!\left(#1\right)}
+- \newcommand\N[1]{N_{\tiny{#1}}}
+- \newcommand\ol{\overline}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE,
+                      dev = 'pdf')
+options(tibble.width=70)
+```
+
+## the $t$ distributions - II-and-a-half
+
+Rephrased from last time.
+
+$$T = \frac{\ol{X} - \mu}{S/\sqrt{n}} 
+\onslide<2->{= \frac{\frac{\ol{X}-\mu}{\sigma/\sqrt{n}}}{\sqrt{\frac{(n-1)S^2}{\sigma^2}/(n-1)}} \sim t_{n-1}} \onslide<3->{\qquad \left(\text{symbolically: }\frac{N(0,1)}{\sqrt{\chi^2_{n-1}/(n-1)}}\right)}$$
+
+\pause\pause\pause Things to remember:
+
+* Symmetric and bell shaped.
+
+* As $n$ gets big, $T$ starts to look like $Z \sim N(0,1)$}
+
+* a table of $t$ probabilities needed on tests.
+
+## overall pictures of $t_\nu$
+
+```{r}
+z <- -400:400/100
+plot(z, dnorm(z), xlab="z", ylab="density", type="l", cex=1.5)
+lines(z, dt(z, 3), col="red")
+lines(z, dt(z, 10), col="blue")
+lines(z, dt(z, 30), col="violet")
+legend(1.5, 0.3, legend = c("N(0,1)", "t_3", "t_10", "t_30"), fill = c("black", "red", "blue", "violet"))
+```
+
+## pictures of $t_\nu$ in the "tail"
+
+```{r}
+z <- 200:500/100
+plot(z, dnorm(z), xlab="z", ylab="density", type="l")
+lines(z, dt(z, 3), col="red")
+lines(z, dt(z, 10), col="blue")
+lines(z, dt(z, 30), col="violet")
+lines(z, dt(z, 100), col="darkgreen")
+legend(3, 0.05, legend = c("N(0,1)", "t_3", "t_10", "t_30", "t_100"), fill = c("black", "red", "blue", "violet", "darkgreen"))
+```
+
+## the $F$ distributions
+
+We might need the following technical result as well.
+
+\pause If $U\sim \chi^2_m$ and $V \sim \chi^2_n$ and $U \perp V$ then we say:
+$$F = \frac{U/m}{V/n} \sim F_{m,n}$$
+or "$F$ has an $F$ distribution with $m$ and $n$ degrees of freedom."
+
+\pause $F$ distributions happen when it makes sense to consider the ratio of sums of squared normals. It is not yet obvious when this might take place. 
+
+\pause The density is nasty; tables must be used on tests, etc.
+
+## pictures of some $F$ distributions
+
+```{r}
+z <- seq(0.1, 6, by=0.01)
+plot(z, df(z, 1, 30), type="l", col="red", xlab="x", ylab="density")
+lines(z, df(z, 2, 25), col="blue")
+lines(z, df(z, 10, 20), col="purple")
+legend(3, 1, legend = c("df1 = 1, df2=30", "df1 = 2, df2=25", "df1 = 10, df2=20"),
+       fill=c("red", "blue", "purple"))
+```
+
+## preview example of $F$ theory
+
+\begin{table}[ht]
+\def\arraystretch{1.5}
+\begin{tabular}{ccc}
+Populations & \onslide<2->{Samples} & \onslide<3->{Sample Variances}\\
+$N(\mu_1,\sigma_1)$ & \onslide<2->{$X_{11}, \ldots, X_{1n_1}$} & \onslide<3->{$S^2_1$}\\
+$N(\mu_2,\sigma_2)$ & \onslide<2->{$X_{21}, \ldots, X_{2n_2}$} & \onslide<3->{$S^2_2$}\\
+\end{tabular}
+\end{table}
+
+Question: are the two population standard deviations the same, or not?
+
+\pause\pause\pause Answer might be based on:
+$$\frac{S^2_{n_1}/(n_1-1)}{S^2_{n_2}/(n_2-1)} \sim F_{n_1-1,n_2-1}$$
+
+# a specialized plot for detecting deviations from normality
+
+## central limit theorem, and friends
+
+Recall that no matter the underlying distribution, as long as $n$ is "large enough":
+$$\frac{\ol{X} - \mu}{\sigma/\sqrt{n}} \sim^{approx} N(0,1)$$
+
+\pause But wait! There's more! As long as $n$ is large enough (by exactly the same standard as before), we  get something even more useful:
+$$\frac{\ol{X} - \mu}{S/\sqrt{n}} \sim^{approx} t_{n-1}$$
+
+\pause But the problem is...if we don't know the underlying distribution, how can we be confident in what sample size might be required. 
+
+\pause The answer is to use \textit{statistics}, by which I mean gather a sample and estimate what you don't know.
+
+## limitations of "histogram"
+
+During the first week of the course, the idea of histogram was used to motivate concepts of (empirical) symmetry and skewness. 
+
+But a histogram requires a very large sample size (hundreds?) to give an accurate picture. By the time you have $n$ in the hundreds, the normal approximation is going to be pretty good.
+
+\pause For the rest of the course we'll be concerned with distribution shape \textit{relative to normality}, sometimes with samples too small for histograms.
+
+\pause There's an accurate graphical method that works as follows:
+
+* (computer) puts the observed data in order.
+
+* (computer) determines what a "perfect" $N(0,1)$ dataset of the same sample size would look like.
+
+* (computer) makes scatterplot with perfect (horizontal) vs. ordered data (vertical)
+
+* straight line means data are consistent with having come from a normal distribution. Other patterns also easy to interpret.
+
+## "perfect" standard normal data 
+
+Find the values that split the area under the curve into equal parts.
+
+```{r}
+z <- seq(-4, 4, by=0.01)
+n <- 15
+x <- qnorm(ppoints(n))
+plot(z, dnorm(z), xlab="z", ylab="density", type="l", ylim=c(-0.01, 0.4), yaxt="n", main=paste0("Sample size n=", n), sub = "Areas of shaded parts all equal")
+points(x, rep(0,n), pch=19)
+abline(h=0)
+for(i in 1:(n-1)) {
+  polygon(c(x[i], x[i], z[z >= x[i] & z <= x[i+1]], x[i+1], x[i+1]),
+  c(0, dnorm(x[i]), dnorm(z[z >= x[i] & z <= x[i+1]]), dnorm(x[i+1]), 0), col=rgb(runif(1), runif(1), runif(1), alpha=runif(1, 0.1, 0.2)))
+}
+polygon(c(z[1], z[1], z[z <= x[1]], x[1], x[1]),
+       c(0, dnorm(z[1]), dnorm(z[z <= x[1]]), dnorm(x[1]), 0),
+       col=rgb(runif(1), runif(1), runif(1), alpha=runif(1, 0.1, 0.2)))
+polygon(c(max(x), max(x), z[z >= max(x)], max(z), max(z)),
+       c(0, dnorm(max(x)), dnorm(z[z >= max(x)]), dnorm(max(z)), 0),
+       col=rgb(runif(1), runif(1), runif(1), alpha=runif(1, 0.1, 0.2)))
+legend(1, 0.4, "Colours chosen at random\nfor maximum ugliness.")
+```
+
+## result: "normal quantile plot" of "normal q-q plot" (other names)
+
+First set of examples will have $n=1000$, in which case a histogram might have been OK anyway. First example: perfect normal $N(5, 3)$ data. Result: straight line.
+
+```{r}
+n <- 1000
+Data <- rnorm(n, 5, 3)
+layout(matrix(1:2, nrow = 1))
+hist(Data, n=20)
+qqnorm(Data)
+```
+
+
+## $n=1000$ right skewed data
+
+Gamma(2, 10). Result: curved ("concave 'up'")
+
+```{r}
+Data <- rgamma(n, 2, 10)
+layout(matrix(1:2, nrow = 1))
+hist(Data, n=20)
+qqnorm(Data)
+```
+
+
+## $n=1000$ light tails
+
+Uniform[0,1]. Result: S-shaped.
+
+```{r}
+Data <- runif(n, 0, 1)
+layout(matrix(1:2, nrow = 1))
+hist(Data, n=20)
+qqnorm(Data)
+```
+
+## $n=1000$ rarer case: left skewed
+
+Result: curved ("concave 'down'")
+
+```{r}
+Data <- rweibull(n, 20, 50)
+layout(matrix(1:2, nrow = 1))
+hist(Data, n=20)
+qqnorm(Data)
+```
+
+## $n=1000$ very rare: "heavy tails"
+
+Result: "reverse-S" shaped
+
+
+```{r}
+Data <- rt(n, 3)
+layout(matrix(1:2, nrow = 1))
+hist(Data, n=20)
+qqnorm(Data)
+```
+
+## value of normal quantile plots is with small samples
+
+Bring the sample size down to $n=50$. Histogram not useful. Here's the $N(5,3)$ example again.
+
+```{r}
+n <- 50
+Data <- rnorm(n, 5,3)
+layout(matrix(1:2, nrow = 1))
+hist(Data)
+qqnorm(Data)
+```
+
+
+## $n=50$ right skewed
+
+```{r}
+Data <- rgamma(n, 2, 10)
+layout(matrix(1:2, nrow = 1))
+hist(Data)
+qqnorm(Data)
+```
+
+## $n=50$ light tails
+
+```{r}
+Data <- runif(n, 0, 1)
+layout(matrix(1:2, nrow = 1))
+hist(Data)
+qqnorm(Data)
+```
+
